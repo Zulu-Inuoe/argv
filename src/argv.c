@@ -1,29 +1,30 @@
-#ifdef _WIN32
-#include <wchar.h>
-#include <Windows.h>
-#else
 #include <stdio.h>
+
+#ifdef _WIN32
+#include <io.h>
+#include <fcntl.h>
+#include <wchar.h>
 #endif
 
-int main(int argc, char** argv)
+
+#ifdef _WIN32
+int wmain (int argc, wchar_t** argv)
+#else
+int main (int argc, char** argv)
+#endif
 {
-    #ifdef _WIN32
-    int wargc = 0;
-    LPWSTR* wargv = CommandLineToArgvW(GetCommandLineW(), &wargc);
-    #endif
+#ifdef _WIN32
+    _setmode(_fileno(stdout), _O_U16TEXT);
+#endif
 
-    for (int arg = 0; wargv[arg]; ++arg)
+    for (int i = 0; i < argc; ++i)
     {
-        #ifdef _WIN32
-        wprintf(L"%d: [%ls]\n", arg, wargv[arg]);
-        #else
-        printf("%d: [%s]\n", arg, argv[arg]);
-        #endif
+#ifdef _WIN32
+        wprintf(L"%d: [%s]\n", i, argv[i]);
+#else
+        printf("%d: [%s]\n", i, argv[i]);
+#endif
     }
-
-    #ifdef _WIN32
-    LocalFree(wargv);
-    #endif
 
     return 0;
 }
